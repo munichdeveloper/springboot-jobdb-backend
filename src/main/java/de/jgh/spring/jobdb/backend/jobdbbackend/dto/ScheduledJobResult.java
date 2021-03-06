@@ -13,10 +13,6 @@ public class ScheduledJobResult {
 	private int importCnt;
 	private Set<Long> identifiers = new HashSet<>();
 
-	public ScheduledJobResult(String jobType) {
-		this.jobType = jobType;
-	}
-
 	public int incrementAndGetImportCnt(int incrementBy) {
 		this.importCnt += incrementBy;
 		return this.importCnt;

@@ -5,9 +5,11 @@ import org.springframework.stereotype.Repository;
 
 import de.jgh.spring.jobdb.backend.jobdbbackend.model.Job;
 
+import java.util.Optional;
+
 @Repository
 public interface JobRepository extends JpaRepository<Job, Long> {
 
-    Job findFirstByJobTypeEqualsOrderByCreateDateTimeDesc(String jobType);
+    Optional<Job> findFirstByJobDefinitionJobTypeEqualsOrderByCreateDateTimeDesc(String jobType);
 
 }

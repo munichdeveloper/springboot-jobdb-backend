@@ -27,13 +27,15 @@ public class Job {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @ManyToOne
+    @JoinColumn(name = "fk_jobdefinition_id")
+    private JobDefinition jobDefinition;
+
     @CreationTimestamp
     private LocalDateTime createDateTime;
 
     @UpdateTimestamp
     private LocalDateTime updateDateTime;
-
-    private String jobType;
 
     @Enumerated(STRING)
     private JobStatus jobStatus = JobStatus.STARTED;
@@ -43,7 +45,4 @@ public class Job {
     @ElementCollection
     private Set<Long> identifiers = new HashSet<>();
 
-    public Job(String jobType) {
-        this.jobType = jobType;
-    }
 }
