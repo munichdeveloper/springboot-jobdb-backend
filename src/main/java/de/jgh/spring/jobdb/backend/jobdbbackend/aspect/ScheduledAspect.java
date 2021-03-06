@@ -6,6 +6,7 @@ import de.jgh.spring.jobdb.backend.jobdbbackend.model.JobDefinition;
 import de.jgh.spring.jobdb.backend.jobdbbackend.repository.JobDefinitionRepository;
 import de.jgh.spring.jobdb.backend.jobdbbackend.repository.JobRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -39,7 +40,13 @@ public class ScheduledAspect {
         String cronExpression = annotation.cron();
         String jobType = StringUtils.capitalize(method.getName());
 
-        Job job = jobRepository.save(new Job());
+        JobDefinition jobDefinition = jobDefinitionRepository.findByJobType(jobType).orElseGet(() -> new JobDefinition(cronExpression));
+        jobDefinition.setJobType(jobType);
+        jobDefinition.setCronExpression(cronExpression);
+        jobDefinitionRepository.save(jobDefinition);
+        Job job = new Job();
+        job.setJobDefinition(jobDefinition);
+        job = jobRepository.save(job);
 
         ScheduledJobResult scheduledJobResult = null;
         try {
@@ -51,14 +58,10 @@ public class ScheduledAspect {
             }
         } catch (Exception e) {
             job.setJobStatus(ERROR);
+            job.setMeta(ExceptionUtils.getStackTrace(e));
             log.error("error occured in job execution: " + jobType, e);
         } finally {
-            if (scheduledJobResult != null) {
-                JobDefinition jobDefinition = jobDefinitionRepository.findByJobType(jobType).orElseGet(() -> new JobDefinition(cronExpression));
-                jobDefinition.setJobType(jobType);
-                jobDefinition.setCronExpression(cronExpression);
-                jobDefinitionRepository.save(jobDefinition);
-                job.setJobDefinition(jobDefinition);
+            if (scheduledJobResult == null || scheduledJobResult.isLogResult()) {
                 jobRepository.save(job);
             } else {
                 jobRepository.delete(job);

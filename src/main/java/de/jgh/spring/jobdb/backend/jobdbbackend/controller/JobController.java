@@ -1,5 +1,6 @@
 package de.jgh.spring.jobdb.backend.jobdbbackend.controller;
 
+import de.jgh.spring.jobdb.backend.jobdbbackend.dto.JobHistoryEntryDTO;
 import de.jgh.spring.jobdb.backend.jobdbbackend.service.JobService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -18,9 +19,16 @@ public class JobController {
     @Autowired
     private JobService jobService;
 
-    @GetMapping("/{jobType}/{to}")
+    @GetMapping("/schedule/{jobType}/{to}")
     private List<LocalDateTime> getScheduledJobs(@PathVariable String jobType, @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to) {
         return jobService.getScheduledJobs(jobType, to);
+    }
+
+    @GetMapping("/history/{jobType}/{from}/{to}")
+    private List<JobHistoryEntryDTO> getJobHistory(@PathVariable String jobType,
+                                                   @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
+                                                   @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to) {
+        return jobService.getJobHistory(jobType, from, to);
     }
 
 }

@@ -45,4 +45,7 @@ public class Job {
     @ElementCollection
     private Set<Long> identifiers = new HashSet<>();
 
+    @Lob
+    private String meta;
+
 }
