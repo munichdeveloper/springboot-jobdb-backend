@@ -51,7 +51,7 @@ public class ScheduledAspect {
             }
         } catch (Exception e) {
             job.setJobStatus(ERROR);
-            log.error(e.getMessage());
+            log.error("error occured in job execution: " + jobType, e);
         } finally {
             if (scheduledJobResult != null) {
                 JobDefinition jobDefinition = jobDefinitionRepository.findByJobType(jobType).orElseGet(() -> new JobDefinition(cronExpression));
