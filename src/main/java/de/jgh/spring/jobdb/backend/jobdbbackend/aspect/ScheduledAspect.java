@@ -43,6 +43,8 @@ public class ScheduledAspect {
         JobDefinition jobDefinition = jobDefinitionRepository.findByJobType(jobType).orElseGet(() -> new JobDefinition(cronExpression));
         jobDefinition.setJobType(jobType);
         jobDefinition.setCronExpression(cronExpression);
+        jobDefinition.setClassName(method.getDeclaringClass().getName());
+        jobDefinition.setMethodName(method.getName());
         jobDefinitionRepository.save(jobDefinition);
         Job job = new Job();
         job.setJobDefinition(jobDefinition);

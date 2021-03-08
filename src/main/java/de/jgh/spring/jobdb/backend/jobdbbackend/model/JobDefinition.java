@@ -25,6 +25,9 @@ public class JobDefinition {
 
     private String jobType;
 
+    private String className;
+    private String methodName;
+
     public JobDefinition(String cronExpression) {
         this.cronExpression = cronExpression;
     }
