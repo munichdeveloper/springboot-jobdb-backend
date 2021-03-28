@@ -9,17 +9,16 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ScheduledJobResult {
-	private String jobType;
-	private int importCnt;
-	private Set<Long> identifiers = new HashSet<>();
-	private boolean logResult = true;
+    private String jobType;
+    private int importCnt;
+    private Set<Long> identifiers = new HashSet<>();
 
-	public int incrementAndGetImportCnt(int incrementBy) {
-		this.importCnt += incrementBy;
-		return this.importCnt;
-	}
+    public int incrementAndGetImportCnt(int incrementBy) {
+        this.importCnt += incrementBy;
+        return this.importCnt;
+    }
 
-	public void addIdentifiers(Set<Long> additionalIdentifiers) {
-		this.identifiers.addAll(additionalIdentifiers);
-	}
+    public void addIdentifiers(Set<Long> additionalIdentifiers) {
+        this.identifiers.addAll(additionalIdentifiers);
+    }
 }

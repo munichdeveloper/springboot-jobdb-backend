@@ -5,6 +5,7 @@ import de.jgh.spring.jobdb.backend.jobdbbackend.model.Job;
 import de.jgh.spring.jobdb.backend.jobdbbackend.model.JobDefinition;
 import de.jgh.spring.jobdb.backend.jobdbbackend.repository.JobDefinitionRepository;
 import de.jgh.spring.jobdb.backend.jobdbbackend.repository.JobRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -21,6 +22,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class JobService {
 
     @Autowired
@@ -61,6 +63,8 @@ public class JobService {
             } catch (InvocationTargetException e) {
                 e.printStackTrace();
             }
+        } else {
+            log.info("No jobdefinition found for: {}", jobType);
         }
         return false;
     }

@@ -1,5 +1,6 @@
 package de.jgh.spring.jobdb.backend.jobdbbackend.aspect;
 
+import de.jgh.spring.jobdb.backend.jobdbbackend.annotation.NoJobLog;
 import de.jgh.spring.jobdb.backend.jobdbbackend.dto.ScheduledJobResult;
 import de.jgh.spring.jobdb.backend.jobdbbackend.model.Job;
 import de.jgh.spring.jobdb.backend.jobdbbackend.model.JobDefinition;
@@ -36,8 +37,10 @@ public class ScheduledAspect {
     public Object logJobexecution(ProceedingJoinPoint joinPoint) throws Throwable {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
-        Scheduled annotation = method.getAnnotation(Scheduled.class);
-        String cronExpression = annotation.cron();
+        NoJobLog noJobLogAnnotation = method.getAnnotation(NoJobLog.class);
+
+        Scheduled scheduledAnnotation = method.getAnnotation(Scheduled.class);
+        String cronExpression = scheduledAnnotation.cron();
         String jobType = StringUtils.capitalize(method.getName());
 
         JobDefinition jobDefinition = jobDefinitionRepository.findByJobType(jobType).orElseGet(() -> new JobDefinition(cronExpression));
@@ -46,31 +49,39 @@ public class ScheduledAspect {
         jobDefinition.setClassName(method.getDeclaringClass().getName());
         jobDefinition.setMethodName(method.getName());
         jobDefinitionRepository.save(jobDefinition);
-        Job job = new Job();
-        job.setJobDefinition(jobDefinition);
-        job = jobRepository.save(job);
+        Job job = null;
+        if (noJobLogAnnotation == null) {
+            job = new Job();
+            job.setJobDefinition(jobDefinition);
+            job = jobRepository.save(job);
+        }
 
         ScheduledJobResult scheduledJobResult = null;
         try {
             scheduledJobResult = (ScheduledJobResult) joinPoint.proceed();
-            if (scheduledJobResult != null) {
-                job.setJobStatus(FINISHED);
+            if (scheduledJobResult != null && noJobLogAnnotation == null) {
                 job.setCntImported(scheduledJobResult.getImportCnt());
                 job.setIdentifiers(scheduledJobResult.getIdentifiers());
             }
         } catch (Exception e) {
-            job.setJobStatus(ERROR);
-            job.setMeta(ExceptionUtils.getStackTrace(e));
+            if (noJobLogAnnotation == null) {
+                job.setJobStatus(ERROR);
+                job.setMeta(ExceptionUtils.getStackTrace(e));
+            }
             log.error("error occured in job execution: " + jobType, e);
         } finally {
-            if (scheduledJobResult == null || scheduledJobResult.isLogResult()) {
-                jobRepository.save(job);
-            } else {
-                jobRepository.delete(job);
+            if (noJobLogAnnotation == null) {
+                job.setJobStatus(FINISHED);
+                if (scheduledJobResult == null) {
+                    jobRepository.save(job);
+                } else {
+                    jobRepository.delete(job);
+                }
             }
         }
 
         return scheduledJobResult;
+
     }
 
 }
