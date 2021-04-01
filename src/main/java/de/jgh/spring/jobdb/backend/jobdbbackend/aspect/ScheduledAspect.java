@@ -72,7 +72,7 @@ public class ScheduledAspect {
         } finally {
             if (noJobLogAnnotation == null) {
                 job.setJobStatus(FINISHED);
-                if (scheduledJobResult == null) {
+                if (scheduledJobResult != null) {
                     jobRepository.save(job);
                 } else {
                     jobRepository.delete(job);
