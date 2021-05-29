@@ -72,11 +72,7 @@ public class ScheduledAspect {
             log.error("error occured in job execution: " + jobType, e);
         } finally {
             if (noJobLogAnnotation == null) {
-                if (scheduledJobResult != null) {
-                    jobRepository.save(job);
-                } else {
-                    jobRepository.delete(job);
-                }
+                jobRepository.save(job);
             }
         }
 
