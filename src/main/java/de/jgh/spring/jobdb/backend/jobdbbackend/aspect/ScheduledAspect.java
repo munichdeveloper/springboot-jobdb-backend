@@ -62,6 +62,7 @@ public class ScheduledAspect {
             if (scheduledJobResult != null && noJobLogAnnotation == null) {
                 job.setCntImported(scheduledJobResult.getImportCnt());
                 job.setIdentifiers(scheduledJobResult.getIdentifiers());
+                job.setJobStatus(FINISHED);
             }
         } catch (Exception e) {
             if (noJobLogAnnotation == null) {
@@ -71,7 +72,6 @@ public class ScheduledAspect {
             log.error("error occured in job execution: " + jobType, e);
         } finally {
             if (noJobLogAnnotation == null) {
-                job.setJobStatus(FINISHED);
                 if (scheduledJobResult != null) {
                     jobRepository.save(job);
                 } else {
